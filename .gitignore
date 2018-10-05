@@ -27,3 +27,15 @@ Debug/opengl_model.tlog/unsuccessfulbuild
 *.obj
 *.ipch
 *.log
+*.txt
+*.pdb
+*.idb
+*.tlog
+*.lastbuildstate
+*.ilk
+*.exe
+*.vcxproj
+*.sln
+*.filters
+*.suo
+*.sdf
