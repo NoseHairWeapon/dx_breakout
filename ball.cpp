@@ -35,7 +35,7 @@ void Ball::color_table(VECTOR _c)
 	blue = _c.z;
 }
 
-int Ball::pushradius()
+int Ball::pushradius() const
 {
 	return radius;
 }
@@ -55,4 +55,15 @@ bool Ball::intersectBall(const Ball &_ball)
 		return true;
 	else 
 		return false;
+}
+
+void Ball::getRectPointParameter(VECTOR const &position)
+{
+	m_position = position;
+	radius = 0.0;
+}
+
+VECTOR Ball::pushposition() const
+{
+	return m_position;
 }

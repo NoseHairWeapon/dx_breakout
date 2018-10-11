@@ -13,9 +13,12 @@ public:
 	Rect();
 	Rect(VECTOR const &_position, VECTOR const &_size);
 	void draw();
-	void update(int &x, int &y);
-	void update(const VECTOR &_position, const VECTOR &_size);
+	virtual void update(int &x, int &y);
+	virtual void update(const VECTOR &_position, const VECTOR &_size);
 	void color_table(const VECTOR &CV);
 	bool intersect(VECTOR const &_point);
 	bool intersect(Rect const &_rect);
+	//手動での変更、おそらく使わない。
+	void pushposition(VECTOR const &v){ m_position = v; }
+	void pushsize(VECTOR const &v){ m_size = v; }
 };

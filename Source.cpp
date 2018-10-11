@@ -1,13 +1,13 @@
 #include <iostream>
 #include <cstdlib>
 #include <DxLib.h>
-#include "rect.h"
+#include "entity.h"
 #include "ball.h"
 using namespace std;
 
 VECTOR VPOS, VSIZE;
-Rect r1;
-Ball ball, ball2;
+Entity r1;
+Ball ball;
 
 int MouseX, MouseY;
 VECTOR color;
@@ -51,26 +51,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 void idle()
 {
+	color = VGet(0, 255, 0);
+	r1.color_table(color);
+
 	//マウスの位置を取得
 	GetMousePoint(&MouseX, &MouseY);
-	ball2.update(MouseX, MouseY);
+	r1.update(MouseX, MouseY);
 
 	//オブジェクトの衝突
-	if (ball.intersectBall(ball2)){
+	if (r1.intersectP(ball) || r1.lazerCollision(ball)){
 		color = VGet(255,0,0);		//色の設定
 	}else
 		color = VGet(0, 255, 255);
-	ball2.color_table(color);		//色の設定
-
-	color = VGet(0, 255, 0);
-	ball.color_table(color);
+	ball.color_table(color);		//色の設定
 }
 void display()
 {
 	ClearDrawScreen();		//画面を消す
 	//r1を描画
 	r1.draw();
-	ball2.draw();
 	ball.draw();
 
 	ScreenFlip();		//裏画面を表画面に反映
