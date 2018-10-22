@@ -46,7 +46,7 @@ void Entity::update(int &x, int &y)
 	P[3] = VGet(m_position.x + m_size.x, m_position.y + m_size.y, 0.0);
 }
 
-bool Entity::intersectP(Ball const &_ball)
+bool Entity::lazerCollision1(Ball const &_ball)
 {
 	Ball t;
 
@@ -58,7 +58,7 @@ bool Entity::intersectP(Ball const &_ball)
 	return false;
 }
 
-bool Entity::lazerCollision(Ball const &_ball)
+bool Entity::lazerCollision2(Ball const &_ball)
 {
 	VECTOR pq, pm;
 	float inner, pqd2, pmd2, phd2, d2, k;
@@ -66,10 +66,10 @@ bool Entity::lazerCollision(Ball const &_ball)
 	float r;
 	r = _ball.pushradius();
 	
+	Bpos = _ball.pushposition();
 	const int n[][4] = { { 0, 1, 3, 2 }, { 1, 3, 2, 0 } };
 	for (int i = 0; i < 4; i++){
 		pq = createVector(P[n[0][i]], P[n[1][i]]);	//0,1,3,2 : 1,3,2,0
-		Bpos = _ball.pushposition();
 		pm = createVector(P[n[0][i]], Bpos);
 
 		inner = innerProduct(pq, pm);	//“àÏ
@@ -85,6 +85,48 @@ bool Entity::lazerCollision(Ball const &_ball)
 		d2 = pmd2 - phd2;	//‚ü‚Ì‘å‚«‚³‚Ì“ñæ
 
 		if (d2 < r * r) return true;
+	}
+	return false;
+}
+
+bool Entity::lazerCollision3(Ball const &_ball)
+{
+	VECTOR pp, pm;
+	float inner, outer, theta[2];
+	VECTOR Bpos;
+
+	Bpos = _ball.pushposition();
+	for (int i = 0; i < 2; i++)
+	{
+		pp = createVector(P[i * 3], P[1 + i]);	//0.1 : 3.2
+		pm = createVector(P[i * 3], Bpos);
+
+		inner = innerProduct(pp, pm);
+		outer = outerProduct(pp, pm);
+
+		theta[i] = RTOD(atan2(outer, inner));
+	}
+
+	if (0 <= theta[0] && theta[0] <= 90 &&
+		0 <= theta[1] && theta[1] <= 90){
+		return true;
+	}
+
+	return false;
+}
+
+bool Entity::LazerCollision(Ball const &_ball)
+{
+	bool(Entity::*lazer_collision[])(Ball const &_ball)
+	{
+		&Entity::lazerCollision1,
+		&Entity::lazerCollision2,
+		&Entity::lazerCollision3,
+	};
+
+	for (int i = 0; i < 3; i++){
+		if ((this->*lazer_collision[i])(_ball))
+			return true;
 	}
 	return false;
 }

@@ -3,6 +3,10 @@
 #include "Rect.h"
 #include "ball.h"
 
+#define PI 3.141592
+#define RTOD(RAD)	((RAD)*(180 / PI))
+#define DTOR(DEG)	((DEG)*(PI / 180))
+
 class Entity : public Rect{
 	VECTOR P[4];
 public:
@@ -32,6 +36,8 @@ public:
 		return innerProduct(vec, vec);	// v*v = |v| ^ 2
 	}
 
-	bool intersectP(Ball const &_ball);
-	bool lazerCollision(Ball const &_ball);
+	bool lazerCollision1(Ball const &_ball);
+	bool lazerCollision2(Ball const &_ball);
+	bool lazerCollision3(Ball const &_ball);
+	bool LazerCollision(Ball const &_ball);
 };

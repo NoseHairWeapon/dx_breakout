@@ -59,7 +59,7 @@ void idle()
 	r1.update(MouseX, MouseY);
 
 	//オブジェクトの衝突
-	if (r1.intersectP(ball) || r1.lazerCollision(ball)){
+	if (r1.LazerCollision(ball)){
 		color = VGet(255,0,0);		//色の設定
 	}else
 		color = VGet(0, 255, 255);
