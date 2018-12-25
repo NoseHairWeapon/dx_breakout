@@ -87,44 +87,37 @@ void D_GAME::Reshape(int width, int height)
 	//ScreenFlip();
 	WindowSize = VGet(width, height, 0);
 
-	//キーをチェックして画面を切り替え
-	int key = GetJoypadInputState(DX_INPUT_KEY_PAD1);
-	if (IsAKeyTrigger(key) == TRUE) {
-		g_gamestate = GAME_MAIN;
+	float frameHeight = 16;
+	field.m_size.y = WindowSize.y - frameHeight;
+	field.m_size.x = field.m_size.y;
+	field.m_position.x = (WindowSize.x - field.m_size.x) / 2;
+	field.m_position.y = frameHeight;
 
-		float frameHeight = 16;
-		field.m_size.y = WindowSize.y - frameHeight;
-		field.m_size.x = field.m_size.y;
-		field.m_position.x = (WindowSize.x - field.m_size.x) / 2;
-		field.m_position.y = frameHeight;
+	//ボールの半径設定
+	ball.pushradius(8);
+	//ボールの位置設定
+	ball_Initposition = VGet(field.m_position.x, field.m_position.y + field.m_size.y / 2, 0.0);
+	ball.pushPosition(ball_Initposition);
+	v = VGet(1.0, 1.0, 0.0);
+	ball.pushSpeed(v);
+	ball.pushPower(powerTbl[level]);
 
-		//ボールの半径設定
-		ball.pushradius(8);
-		//ボールの位置設定
-		ball_Initposition = VGet(field.m_position.x, field.m_position.y + field.m_size.y / 2, 0.0);
-		ball.pushPosition(ball_Initposition);
-		v = VGet(1.0, 1.0, 0.0);
-		ball.pushSpeed(v);
-		ball.pushPower(powerTbl[level]);
+	vec = VGet(field.m_position.x + field.m_size.x / 2 - (PADDLE_DEFAULT_WIDTH / 2), field.m_position.y + field.m_size.y - 64, 0.0);
+	Paddle.pushposition(vec);
+	vec = VGet(PADDLE_DEFAULT_WIDTH, PADDLE_DEFAULT_HEIGHT, 0.0);
+	Paddle.pushsize(vec);
 
-		vec = VGet(field.m_position.x + field.m_size.x / 2 - (PADDLE_DEFAULT_WIDTH / 2), field.m_position.y + field.m_size.y - 64, 0.0);
-		Paddle.pushposition(vec);
-		vec = VGet(PADDLE_DEFAULT_WIDTH, PADDLE_DEFAULT_HEIGHT, 0.0);
-		Paddle.pushsize(vec);
-
-		//ブロック設定
-		blockSize = VGet(field.m_size.x / BLOCK_COLUMN_MAX, BLOCK_HEIGHT, 0);
-		float y = field.m_position.y + (FONT_HEIGHT + FONT_WEIGHT) * 2;
-		for (int i = 0; i < BLOCK_ROW_MAX; i++)
-		for (int j = 0; j < BLOCK_COLUMN_MAX; j++){
-			vec = VGet((field.m_position.x + field.m_size.x * j / BLOCK_COLUMN_MAX),
-				(y + i * blockSize.y) + 1, 0);
-			blocks[i][j].pushposition(vec);
-			blocks[i][j].pushsize(blockSize);
-		}
+	//ブロック設定
+	blockSize = VGet(field.m_size.x / BLOCK_COLUMN_MAX, BLOCK_HEIGHT, 0);
+	float y = field.m_position.y + (FONT_HEIGHT + FONT_WEIGHT) * 2;
+	for (int i = 0; i < BLOCK_ROW_MAX; i++)
+	for (int j = 0; j < BLOCK_COLUMN_MAX; j++){
+		vec = VGet((field.m_position.x + field.m_size.x * j / BLOCK_COLUMN_MAX),
+			(y + i * blockSize.y) + 1, 0);
+		blocks[i][j].pushposition(vec);
+		blocks[i][j].pushsize(blockSize);
 	}
 }
-
 
 void D_GAME::Display()
 {
