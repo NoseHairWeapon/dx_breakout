@@ -7,6 +7,7 @@ using namespace std;
 #define WINDOW_HEIGHT 600
 
 D_GAME G_frame;
+GameState g_gamestate = GAME_TITLE;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -24,25 +25,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//マウスを表示状態にする
 	SetMouseDispFlag(TRUE);
 
-	G_frame.Reshape(WINDOW_WIDTH, WINDOW_HEIGHT);
-
 	//キーが押されるまでループします
 	//(ちなみにキーが押されるまで待つことは「waitKey」という専用の関数があります)
-	while (CheckHitKey(KEY_INPUT_ESCAPE) == 0)
+	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
-		//オブジェクト更新
-		G_frame.Idle();
-
-		ClearDrawScreen();	//画面を消す
-		//画面描画
-		G_frame.Display();
-		
-		//messageroopに代わる処理をする
-		if (ProcessMessage() == -1)
-		{
-			break;	//エラーが起きたらループを抜ける
+		switch (g_gamestate){
+		case GAME_TITLE:
+			G_frame.DrawGameTitle(WINDOW_WIDTH, WINDOW_HEIGHT);
+			break;
+		case GAME_MAIN:
+			//オブジェクト更新
+			G_frame.Idle();
+			ClearDrawScreen();	//画面を消す
+			//画面描画
+			G_frame.Display();
+			break;
+		default:
+			break;
 		}
-		
 		ScreenFlip();	//裏画面を表画面に反映
 	}
 

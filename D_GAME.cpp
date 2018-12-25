@@ -4,26 +4,6 @@
 #include "ball.h"
 #include <wincon.h>
 
-#define FONT_WEIGHT 8
-#define FONT_HEIGHT 32
-
-#define PADDLE_DEFAULT_WIDTH 64
-#define PADDLE_DEFAULT_HEIGHT 8
-
-#define BLOCK_COLUMN_MAX 14
-#define BLOCK_ROW_MAX 8
-#define BALL_X_SPEED_MAX (2.f)
-#define BLOCK_HEIGHT 12
-
-enum{
-	LEVEL_DEFAULT,
-	LEVEL_HIT_4,
-	LEVEL_HIT_12,
-	LEVEL_HIT_ORANGE,
-	LEVEL_HIT_RED,
-	LEVEL_MAX
-};
-
 //パワーテーブル
 float powerTbl[] = {
 	2,
@@ -42,6 +22,7 @@ VECTOR v;
 Ball ball;
 VECTOR vec;					//使いまわしまくる変数
 
+BOOL g_akey_prev;
 int turn = 1;
 int score = 0;
 int Se_block, Se_wall, Se_paddle;
@@ -60,11 +41,41 @@ int getBlockCount(){
 	return n;
 }
 
-void gameOver(){
-	started = false;
+//キートリガー処理
+BOOL IsAKeyTrigger(int key){
+	if (key & PAD_INPUT_A){
+		if (g_akey_prev == FALSE){
+			g_akey_prev = TRUE;
+			return TRUE;
+		}
+	}
+	else {
+		g_akey_prev = FALSE;
+	}
+	return FALSE;
 }
 
-void D_GAME::Reshape(int width,int height)
+void D_GAME::DrawGameTitle(int x, int y)
+{
+	//フォント
+	int g_middlefont;			//中サイズフォントハンドル
+	int g_largefont;			//大サイズフォントハンドル
+	int g_smallfont;			//小サイズフォントハンドル
+
+	g_middlefont = CreateFontToHandle("メイリオ", 42, -1, DX_FONTTYPE_ANTIALIASING);
+	g_largefont = CreateFontToHandle("メイリオ", 90, -1, DX_FONTTYPE_ANTIALIASING);
+	g_smallfont = CreateFontToHandle("メイリオ", 18, -1, DX_FONTTYPE_ANTIALIASING);
+	DrawStringToHandle(100, 400, "Zキーでゲームスタート",
+		GetColor(255, 0, 255), g_middlefont);
+	//キーをチェックして画面を切り替え
+	int key = GetJoypadInputState(DX_INPUT_KEY_PAD1);
+	if (IsAKeyTrigger(key) == TRUE) {
+		g_gamestate = GAME_MAIN;
+		Reshape(x, y);
+	}
+}
+
+void D_GAME::Reshape(int width, int height)
 {
 	Se_block = LoadSoundMem("decision1.mp3");
 	Se_wall = LoadSoundMem("decision2.mp3");
@@ -76,42 +87,44 @@ void D_GAME::Reshape(int width,int height)
 	//ScreenFlip();
 	WindowSize = VGet(width, height, 0);
 
-	float frameHeight = 16;
-	field.m_size.y = WindowSize.y - frameHeight;
-	field.m_size.x = field.m_size.y;
-	field.m_position.x = (WindowSize.x - field.m_size.x) / 2;
-	field.m_position.y = frameHeight;
+	//キーをチェックして画面を切り替え
+	int key = GetJoypadInputState(DX_INPUT_KEY_PAD1);
+	if (IsAKeyTrigger(key) == TRUE) {
+		g_gamestate = GAME_MAIN;
 
-	//ボールの半径設定
-	ball.pushradius(8);
-	//ボールの位置設定
-	ball_Initposition = VGet(field.m_position.x, field.m_position.y + field.m_size.y / 2, 0.0);
-	ball.pushPosition(ball_Initposition);
-	v = VGet(1.0,1.0, 0.0);
-	ball.pushSpeed(v);
-	ball.pushPower(powerTbl[level]);
+		float frameHeight = 16;
+		field.m_size.y = WindowSize.y - frameHeight;
+		field.m_size.x = field.m_size.y;
+		field.m_position.x = (WindowSize.x - field.m_size.x) / 2;
+		field.m_position.y = frameHeight;
 
-	vec = VGet(field.m_position.x + field.m_size.x / 2 - (PADDLE_DEFAULT_WIDTH / 2), field.m_position.y + field.m_size.y - 64, 0.0);
-	Paddle.pushposition(vec);
-	vec = VGet(PADDLE_DEFAULT_WIDTH, PADDLE_DEFAULT_HEIGHT, 0.0);
-	Paddle.pushsize(vec);
+		//ボールの半径設定
+		ball.pushradius(8);
+		//ボールの位置設定
+		ball_Initposition = VGet(field.m_position.x, field.m_position.y + field.m_size.y / 2, 0.0);
+		ball.pushPosition(ball_Initposition);
+		v = VGet(1.0, 1.0, 0.0);
+		ball.pushSpeed(v);
+		ball.pushPower(powerTbl[level]);
 
-	//ブロック設定
-	blockSize = VGet(field.m_size.x / BLOCK_COLUMN_MAX, BLOCK_HEIGHT, 0);
-	float y = field.m_position.y + (FONT_HEIGHT + FONT_WEIGHT) * 2;
-	for (int i = 0; i < BLOCK_ROW_MAX; i++)
+		vec = VGet(field.m_position.x + field.m_size.x / 2 - (PADDLE_DEFAULT_WIDTH / 2), field.m_position.y + field.m_size.y - 64, 0.0);
+		Paddle.pushposition(vec);
+		vec = VGet(PADDLE_DEFAULT_WIDTH, PADDLE_DEFAULT_HEIGHT, 0.0);
+		Paddle.pushsize(vec);
+
+		//ブロック設定
+		blockSize = VGet(field.m_size.x / BLOCK_COLUMN_MAX, BLOCK_HEIGHT, 0);
+		float y = field.m_position.y + (FONT_HEIGHT + FONT_WEIGHT) * 2;
+		for (int i = 0; i < BLOCK_ROW_MAX; i++)
 		for (int j = 0; j < BLOCK_COLUMN_MAX; j++){
-		vec = VGet((field.m_position.x + field.m_size.x * j / BLOCK_COLUMN_MAX),
-			(y + i * blockSize.y) + 1, 0);
-		blocks[i][j].pushposition(vec);
-		blocks[i][j].pushsize(blockSize);
+			vec = VGet((field.m_position.x + field.m_size.x * j / BLOCK_COLUMN_MAX),
+				(y + i * blockSize.y) + 1, 0);
+			blocks[i][j].pushposition(vec);
+			blocks[i][j].pushsize(blockSize);
+		}
 	}
 }
 
-void D_GAME::Reshape()
-{
-
-}
 
 void D_GAME::Display()
 {
