@@ -65,8 +65,10 @@ void D_GAME::DrawGameTitle(int x, int y)
 	g_middlefont = CreateFontToHandle("メイリオ", 42, -1, DX_FONTTYPE_ANTIALIASING);
 	g_largefont = CreateFontToHandle("メイリオ", 90, -1, DX_FONTTYPE_ANTIALIASING);
 	g_smallfont = CreateFontToHandle("メイリオ", 18, -1, DX_FONTTYPE_ANTIALIASING);
-	DrawStringToHandle(100, 400, "Zキーでゲームスタート",
+	DrawStringToHandle(200, 300, "BreakOut",
 		GetColor(255, 0, 255), g_middlefont);
+	DrawStringToHandle(100, 460, "Pres Z Key",
+		GetColor(0, 255, 0), g_middlefont);
 	//キーをチェックして画面を切り替え
 	int key = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 	if (IsAKeyTrigger(key) == TRUE) {
