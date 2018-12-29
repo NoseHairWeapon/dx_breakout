@@ -25,10 +25,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//マウスを表示状態にする
 	SetMouseDispFlag(TRUE);
 
+	G_frame.LoadSound();
+
 	//キーが押されるまでループします
 	//(ちなみにキーが押されるまで待つことは「waitKey」という専用の関数があります)
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
+		ClearDrawScreen();	//画面を消す
 		switch (g_gamestate){
 		case GAME_TITLE:
 			G_frame.DrawGameTitle(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -36,13 +39,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		case GAME_MAIN:
 			//オブジェクト更新
 			G_frame.Idle();
-			ClearDrawScreen();	//画面を消す
 			//画面描画
 			G_frame.Display();
+			break;
+		case GAME_OVER:
+			G_frame.GameOver();
 			break;
 		default:
 			break;
 		}
+
 		ScreenFlip();	//裏画面を表画面に反映
 	}
 

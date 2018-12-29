@@ -21,8 +21,6 @@ enum GameState{
 	GAME_OVER
 };
 
-extern GameState g_gamestate;
-
 enum{
 	LEVEL_DEFAULT,
 	LEVEL_HIT_4,
@@ -33,10 +31,13 @@ enum{
 };
 
 class D_GAME{
-
+	int Se_block, Se_wall, Se_paddle;
 public:
+	void LoadSound();
 	void DrawGameTitle(int x, int y);
 	void Reshape(int x, int y);
 	void Display();
 	void Idle();
+	int getBlockCount();
+	void GameOver();
 };

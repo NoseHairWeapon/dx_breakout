@@ -13,6 +13,8 @@ float powerTbl[] = {
 	6
 };
 
+extern GameState g_gamestate;
+
 Rect field;
 Entity Paddle;
 Entity blocks[BLOCK_ROW_MAX][BLOCK_COLUMN_MAX];
@@ -21,16 +23,23 @@ VECTOR Color;
 VECTOR v;
 Ball ball;
 VECTOR vec;					//使いまわしまくる変数
+VECTOR blockSize;
 
 BOOL g_akey_prev;
 int turn = 1;
 int score = 0;
-int Se_block, Se_wall, Se_paddle;
-int level = LEVEL_DEFAULT;
+int level;
 
 bool started;
 
-int getBlockCount(){
+void D_GAME::LoadSound()
+{
+	Se_block = LoadSoundMem("decision1.mp3");
+	Se_wall = LoadSoundMem("decision2.mp3");
+	Se_paddle = LoadSoundMem("decision3.mp3");
+}
+
+int D_GAME::getBlockCount(){
 	int n = 0;
 	for (int i = 0; i < BLOCK_ROW_MAX; i++){
 		for (int j = 0; j < BLOCK_COLUMN_MAX; j++){
@@ -79,11 +88,7 @@ void D_GAME::DrawGameTitle(int x, int y)
 
 void D_GAME::Reshape(int width, int height)
 {
-	Se_block = LoadSoundMem("decision1.mp3");
-	Se_wall = LoadSoundMem("decision2.mp3");
-	Se_paddle = LoadSoundMem("decision3.mp3");
-	VECTOR ball_Initposition;
-	VECTOR blockSize = VGet(field.m_size.x / BLOCK_COLUMN_MAX, 8, 0);
+	blockSize = VGet(field.m_size.x / BLOCK_COLUMN_MAX, 8, 0);
 	//デバッグ表示
 	//printfDx("width: %d, height: %d", width, height);
 	//ScreenFlip();
@@ -98,11 +103,13 @@ void D_GAME::Reshape(int width, int height)
 	//ボールの半径設定
 	ball.pushradius(8);
 	//ボールの位置設定
-	ball_Initposition = VGet(field.m_position.x, field.m_position.y + field.m_size.y / 2, 0.0);
-	ball.pushPosition(ball_Initposition);
+	vec = VGet(field.m_position.x, field.m_position.y + field.m_size.y / 2, 0.0);
+	ball.pushPosition(vec);
 	v = VGet(1.0, 1.0, 0.0);
 	ball.pushSpeed(v);
 	ball.pushPower(powerTbl[level]);
+
+	level = LEVEL_DEFAULT;
 
 	vec = VGet(field.m_position.x + field.m_size.x / 2 - (PADDLE_DEFAULT_WIDTH / 2), field.m_position.y + field.m_size.y - 64, 0.0);
 	Paddle.pushposition(vec);
@@ -196,8 +203,6 @@ void D_GAME::Display()
 void D_GAME::Idle()
 {
 	int mouseX, mouseY;
-	//マウスを表示状態にする
-	SetMouseDispFlag(TRUE);
 
 	GetMousePoint(&mouseX, &mouseY);
 	mouseY = field.m_size.y - 64;			//Y座標は固定するため
@@ -224,12 +229,23 @@ void D_GAME::Idle()
 		StopSoundMem(Se_block);
 		PlaySoundMem(Se_wall, DX_PLAYTYPE_BACK);
 	}
-	if ((ball.m_position.y < field.m_position.y)||(ball.m_position.y >= field.m_position.y + field.m_size.y)){
+	if (ball.m_position.y < field.m_position.y){
 		ball.m_position = ball.m_lastposition;
 		ball.m_speed.y *= -1;
 		StopSoundMem(Se_paddle);
 		StopSoundMem(Se_block);
 		PlaySoundMem(Se_wall, DX_PLAYTYPE_BACK);
+	}
+
+	if (ball.m_position.y >= field.m_position.y + field.m_size.y)
+	{
+		turn++;
+		vec = VGet(field.m_position.x, field.m_position.y + field.m_size.y / 2, 0.0);
+		ball.pushPosition(vec);
+		ball.Speedfresh();
+		v = VGet(1.0, 1.0, 0.0);
+		ball.pushSpeed(v);
+		level = LEVEL_DEFAULT;
 	}
 
 	if (Paddle.lazerCollisionHorizontal(ball) || Paddle.lazerCollisionPoint(ball)){
@@ -281,4 +297,27 @@ void D_GAME::Idle()
 			}
 		}
 	}
+
+	if (turn == 4)
+	{
+		g_gamestate = GAME_OVER;
+	}
+}
+
+void D_GAME::GameOver()
+{
+	for (int i = 0; i < BLOCK_ROW_MAX; i++){
+		for (int j = 0; j < BLOCK_COLUMN_MAX; j++){
+			blocks[i][j].isDead = false;
+		}
+	}
+	turn = 1;
+	level = LEVEL_DEFAULT;
+	ball.Speedfresh();
+	int g_largefont;
+	g_largefont = CreateFontToHandle("メイリオ", 90, -1, DX_FONTTYPE_ANTIALIASING);
+	DrawStringToHandle(100, 400, "ゲームオーバー",
+		GetColor(255, 0, 0), g_largefont);
+	WaitTimer(5000);
+	g_gamestate = GAME_TITLE;
 }

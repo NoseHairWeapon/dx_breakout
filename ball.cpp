@@ -39,6 +39,11 @@ void Ball::draw()
 	DrawCircle(m_position.x, m_position.y, radius, Cr, TRUE);
 }
 
+void Ball::Speedfresh()
+{
+	m_speed = VGet(0.0, 0.0, 0.0);
+}
+
 void Ball::color_table(const VECTOR &_c)
 {
 	red = _c.x;

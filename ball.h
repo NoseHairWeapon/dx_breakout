@@ -23,6 +23,7 @@ public:
 	int popradius() const;
 	void pushSpeed(VECTOR &Vec);
 	void pushPower(float const &_power);
+	void Speedfresh();
 	bool intersectBall(const Ball &_ball);
 	bool collisionWall(VECTOR &vec1, VECTOR &vec2);
 	void getRectPointParameter(VECTOR const &position);
