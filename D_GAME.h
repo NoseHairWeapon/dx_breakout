@@ -1,6 +1,11 @@
-#pragma once
+#ifndef __D_GAME_H__
+#define __D_GAME_H__
+
 #include <iostream>
 #include "entity.h"
+#include <DxLib.h>
+#include "ball.h"
+#include "Source.h"
 using namespace std;
 
 #define FONT_WEIGHT 8
@@ -13,6 +18,8 @@ using namespace std;
 #define BLOCK_ROW_MAX 8
 #define BALL_X_SPEED_MAX (2.f)
 #define BLOCK_HEIGHT 12
+
+#define TURN_MAX 3
 
 enum GameState{
 	GAME_TITLE,
@@ -33,7 +40,7 @@ enum{
 class D_GAME{
 	int Se_block, Se_wall, Se_paddle;
 public:
-	void LoadSound();
+	void Load();
 	void DrawGameTitle(int x, int y);
 	void Reshape(int x, int y);
 	void Display();
@@ -41,3 +48,5 @@ public:
 	int getBlockCount();
 	void GameOver();
 };
+
+#endif

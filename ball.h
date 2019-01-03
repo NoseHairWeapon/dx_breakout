@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __BALL_H__
+#define __BALL_H__
+
 
 #include <DxLib.h>
 #include <iostream>
@@ -30,3 +32,5 @@ public:
 	VECTOR popPosition() const;
 	void pushPosition(VECTOR const &_Vec);
 };
+
+#endif

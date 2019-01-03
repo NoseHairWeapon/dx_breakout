@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __ENTITY_H__
+#define __ENTITY_H__
 
 #include <DxLib.h>
 #include "ball.h"
@@ -66,3 +67,5 @@ public:
 	bool lazerCollisionSide(Ball const &_ball);
 	bool LazerCollision(Ball const &_ball);
 };
+
+#endif

@@ -1,8 +1,4 @@
 #include "D_GAME.h"
-#include "entity.h"
-#include <DxLib.h>
-#include "ball.h"
-#include <wincon.h>
 
 //パワーテーブル
 float powerTbl[] = {
@@ -26,17 +22,24 @@ VECTOR vec;					//使いまわしまくる変数
 VECTOR blockSize;
 
 BOOL g_akey_prev;
-int turn = 1;
+int turn = 0;
 int score = 0;
 int level;
 
 bool started;
 
-void D_GAME::LoadSound()
+//フォント
+int g_middlefont;			//中サイズフォントハンドル
+int g_largefont;			//大サイズフォントハンドル
+int g_smallfont;			//小サイズフォントハンドル
+
+void D_GAME::Load()
 {
 	Se_block = LoadSoundMem("decision1.mp3");
 	Se_wall = LoadSoundMem("decision2.mp3");
 	Se_paddle = LoadSoundMem("decision3.mp3");
+	g_middlefont = CreateFontToHandle("メイリオ", 42, -1, DX_FONTTYPE_ANTIALIASING);
+	g_largefont = CreateFontToHandle("メイリオ", 90, -1, DX_FONTTYPE_ANTIALIASING);
 }
 
 int D_GAME::getBlockCount(){
@@ -66,14 +69,6 @@ BOOL IsAKeyTrigger(int key){
 
 void D_GAME::DrawGameTitle(int x, int y)
 {
-	//フォント
-	int g_middlefont;			//中サイズフォントハンドル
-	int g_largefont;			//大サイズフォントハンドル
-	int g_smallfont;			//小サイズフォントハンドル
-
-	g_middlefont = CreateFontToHandle("メイリオ", 42, -1, DX_FONTTYPE_ANTIALIASING);
-	g_largefont = CreateFontToHandle("メイリオ", 90, -1, DX_FONTTYPE_ANTIALIASING);
-	g_smallfont = CreateFontToHandle("メイリオ", 18, -1, DX_FONTTYPE_ANTIALIASING);
 	DrawStringToHandle(200, 300, "BreakOut",
 		GetColor(255, 0, 255), g_middlefont);
 	DrawStringToHandle(100, 460, "Pres Z Key",
@@ -246,6 +241,7 @@ void D_GAME::Idle()
 		v = VGet(1.0, 1.0, 0.0);
 		ball.pushSpeed(v);
 		level = LEVEL_DEFAULT;
+		//WaitTimer(2000);
 	}
 
 	if (Paddle.lazerCollisionHorizontal(ball) || Paddle.lazerCollisionPoint(ball)){
@@ -298,9 +294,10 @@ void D_GAME::Idle()
 		}
 	}
 
-	if (turn == 4)
+	if (turn == TURN_MAX)
 	{
 		g_gamestate = GAME_OVER;
+		g_timerstart = g_lasttime;
 	}
 }
 
@@ -311,13 +308,11 @@ void D_GAME::GameOver()
 			blocks[i][j].isDead = false;
 		}
 	}
-	turn = 1;
+	turn = 0;
 	level = LEVEL_DEFAULT;
 	ball.Speedfresh();
-	int g_largefont;
-	g_largefont = CreateFontToHandle("メイリオ", 90, -1, DX_FONTTYPE_ANTIALIASING);
 	DrawStringToHandle(100, 400, "ゲームオーバー",
 		GetColor(255, 0, 0), g_largefont);
-	WaitTimer(5000);
-	g_gamestate = GAME_TITLE;
+	if(g_lasttime - g_timerstart > 5000)
+		g_gamestate = GAME_TITLE;
 }
