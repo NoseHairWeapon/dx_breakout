@@ -2,11 +2,11 @@
 
 //パワーテーブル
 float powerTbl[] = {
-	2,
 	3,
 	4,
 	5,
-	6
+	6,
+	7
 };
 
 extern GameState g_gamestate;
@@ -32,6 +32,9 @@ bool started;
 int g_middlefont;			//中サイズフォントハンドル
 int g_largefont;			//大サイズフォントハンドル
 int g_smallfont;			//小サイズフォントハンドル
+float ySize;
+
+int screen;
 
 void D_GAME::Load()
 {
@@ -73,10 +76,19 @@ void D_GAME::DrawGameTitle(int x, int y)
 		GetColor(255, 0, 255), g_middlefont);
 	DrawStringToHandle(100, 460, "Pres Z Key",
 		GetColor(0, 255, 0), g_middlefont);
+
+	for (int i = 0; i < BLOCK_ROW_MAX; i++)
+		for (int j = 0; j < BLOCK_COLUMN_MAX; j++)
+			blocks[i][j].isDead = false;
+		
 	//キーをチェックして画面を切り替え
 	int key = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 	if (IsAKeyTrigger(key) == TRUE) {
 		g_gamestate = GAME_MAIN;
+		screen = 0;
+		turn = 1;
+		score = 0;
+		level = LEVEL_DEFAULT;
 		Reshape(x, y);
 	}
 }
@@ -103,8 +115,6 @@ void D_GAME::Reshape(int width, int height)
 	v = VGet(1.0, 1.0, 0.0);
 	ball.pushSpeed(v);
 	ball.pushPower(powerTbl[level]);
-
-	level = LEVEL_DEFAULT;
 
 	vec = VGet(field.m_position.x + field.m_size.x / 2 - (PADDLE_DEFAULT_WIDTH / 2), field.m_position.y + field.m_size.y - 64, 0.0);
 	Paddle.pushposition(vec);
@@ -193,6 +203,8 @@ void D_GAME::Display()
 	DrawFormatString(x, y, Cr, "level: %d\n", level);
 	y += 16;
 	DrawFormatString(x, y, Cr, "BlockCount: %d\n", getBlockCount());
+	y += 16;
+	DrawFormatString(x, y, Cr, "screen: %d\n", screen);
 }
 
 void D_GAME::Idle()
@@ -230,6 +242,8 @@ void D_GAME::Idle()
 		StopSoundMem(Se_paddle);
 		StopSoundMem(Se_block);
 		PlaySoundMem(Se_wall, DX_PLAYTYPE_BACK);
+		vec = VGet(PADDLE_DEFAULT_WIDTH / 2, PADDLE_DEFAULT_HEIGHT, 0.0);
+		Paddle.pushsize(vec);
 	}
 
 	if (ball.m_position.y >= field.m_position.y + field.m_size.y)
@@ -241,6 +255,8 @@ void D_GAME::Idle()
 		v = VGet(1.0, 1.0, 0.0);
 		ball.pushSpeed(v);
 		level = LEVEL_DEFAULT;
+		vec = VGet(PADDLE_DEFAULT_WIDTH, PADDLE_DEFAULT_HEIGHT, 0.0);
+		Paddle.pushsize(vec);
 		//WaitTimer(2000);
 	}
 
@@ -250,6 +266,13 @@ void D_GAME::Idle()
 		StopSoundMem(Se_block);
 		StopSoundMem(Se_wall);
 
+		if ((getBlockCount() <= 0) && (screen < SCREEN_MAX - 1)){
+			screen++;
+
+			for (int i = 0; i < BLOCK_ROW_MAX; i++)
+			for (int j = 0; j < BLOCK_COLUMN_MAX; j++)
+				blocks[i][j].isDead = false;
+		}
 		float paddleCenterX = Paddle.m_position.x + Paddle.m_size.x / 2;
 		float sub = ball.m_position.x - paddleCenterX;
 		float subMax = Paddle.m_size.x / 2;
@@ -263,13 +286,10 @@ void D_GAME::Idle()
 				continue;
 
 			if (blocks[i][j].intersect(ball.m_position)){
-				blocks[i][j].isDead = true;
-				ball.m_speed.y *= -1;
 				StopSoundMem(Se_paddle);
 				StopSoundMem(Se_wall);
 
 				int colorIdx = 3 - (i / 2);
-				printfDx("colorIdx: %d\n", colorIdx);
 				int s = 1 + 2 * colorIdx;
 				score += s;
 				PlaySoundMem(Se_block, DX_PLAYTYPE_BACK);
@@ -290,6 +310,18 @@ void D_GAME::Idle()
 						level = LEVEL_HIT_RED;
 					}
 				}
+				blocks[i][j].isDead = true;
+				if (
+					(ball.m_lastposition.y < blocks[i][j].m_position.y) ||
+					(ball.m_lastposition.y >= blocks[i][j].m_position.y + blocks[i][j].m_size.y)
+					)
+					ball.m_speed.y *= -1;
+
+				if (
+					(ball.m_lastposition.x < blocks[i][j].m_position.x) ||
+					(ball.m_lastposition.x >= blocks[i][j].m_position.x + blocks[i][j].m_size.x)
+					)
+					ball.m_speed.x *= -1;
 			}
 		}
 	}

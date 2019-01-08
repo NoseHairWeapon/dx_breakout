@@ -28,6 +28,7 @@ public:
 	//手動での変更、おそらく使わない。
 	void pushposition(VECTOR const &v){ m_position = v; }
 	void pushsize(VECTOR const &v){ m_size = v; }
+	float popf();
 };
 
 //より実体を持った矩形

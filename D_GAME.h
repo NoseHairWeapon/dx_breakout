@@ -11,15 +11,17 @@ using namespace std;
 #define FONT_WEIGHT 8
 #define FONT_HEIGHT 32
 
-#define PADDLE_DEFAULT_WIDTH 64
+#define PADDLE_DEFAULT_WIDTH 48
 #define PADDLE_DEFAULT_HEIGHT 8
 
 #define BLOCK_COLUMN_MAX 14
 #define BLOCK_ROW_MAX 8
-#define BALL_X_SPEED_MAX (2.f)
+#define BALL_X_SPEED_MAX (1.f)
 #define BLOCK_HEIGHT 12
 
 #define TURN_MAX 3
+
+#define SCREEN_MAX 2
 
 enum GameState{
 	GAME_TITLE,

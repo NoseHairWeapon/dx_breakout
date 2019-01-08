@@ -67,6 +67,13 @@ bool Rect::intersect(Rect const &_rect)
 	return false;
 }
 
+float Rect::popf()
+{
+	float f;
+	f = m_size.y;
+	return f;
+}
+
 Entity::Entity()
 {
 	P[0] = VGet(m_position.x, m_position.y, 0.0);
