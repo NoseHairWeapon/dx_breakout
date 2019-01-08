@@ -32,7 +32,6 @@ bool started;
 int g_middlefont;			//中サイズフォントハンドル
 int g_largefont;			//大サイズフォントハンドル
 int g_smallfont;			//小サイズフォントハンドル
-float ySize;
 
 int screen;
 
@@ -225,7 +224,7 @@ void D_GAME::Idle()
 		Paddle.update(Paddle.m_position,Paddle.m_size);
 	}
 	if (Paddle.m_position.x + Paddle.m_size.x >= field.m_position.x + field.m_size.x){
-		Paddle.m_position.x = field.m_position.x + field.m_size.x - PADDLE_DEFAULT_WIDTH;
+		Paddle.m_position.x = field.m_position.x + field.m_size.x - Paddle.m_size.x;
 		Paddle.update(Paddle.m_position, Paddle.m_size);
 	}
 
