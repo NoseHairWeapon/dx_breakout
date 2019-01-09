@@ -2,11 +2,11 @@
 
 //パワーテーブル
 float powerTbl[] = {
-	3,
 	4,
 	5,
 	6,
-	7
+	7,
+	8
 };
 
 extern GameState g_gamestate;
@@ -44,6 +44,7 @@ void D_GAME::Load()
 	g_largefont = CreateFontToHandle("メイリオ", 90, -1, DX_FONTTYPE_ANTIALIASING);
 }
 
+//ブロックの残りかず
 int D_GAME::getBlockCount(){
 	int n = 0;
 	for (int i = 0; i < BLOCK_ROW_MAX; i++){
@@ -85,7 +86,7 @@ void D_GAME::DrawGameTitle(int x, int y)
 	if (IsAKeyTrigger(key) == TRUE) {
 		g_gamestate = GAME_MAIN;
 		screen = 0;
-		turn = 1;
+		turn = 0;
 		score = 0;
 		level = LEVEL_DEFAULT;
 		Reshape(x, y);
@@ -265,12 +266,14 @@ void D_GAME::Idle()
 		StopSoundMem(Se_block);
 		StopSoundMem(Se_wall);
 
-		if ((getBlockCount() <= 0) && (screen < SCREEN_MAX - 1)){
+		if (getBlockCount() <= 0){
 			screen++;
-
-			for (int i = 0; i < BLOCK_ROW_MAX; i++)
-			for (int j = 0; j < BLOCK_COLUMN_MAX; j++)
-				blocks[i][j].isDead = false;
+			turn--;
+			if (screen < SCREEN_MAX){
+				for (int i = 0; i < BLOCK_ROW_MAX; i++)
+				for (int j = 0; j < BLOCK_COLUMN_MAX; j++)
+					blocks[i][j].isDead = false;
+			}
 		}
 		float paddleCenterX = Paddle.m_position.x + Paddle.m_size.x / 2;
 		float sub = ball.m_position.x - paddleCenterX;
@@ -296,18 +299,14 @@ void D_GAME::Idle()
 				{
 					int n = getBlockCount();
 					int blockCountMax = BLOCK_COLUMN_MAX * BLOCK_ROW_MAX;
-					if (n <= blockCountMax - 4 && (level < LEVEL_HIT_4)){
+					if (n <= blockCountMax - 4 && (level < LEVEL_HIT_4))
 						level = LEVEL_HIT_4;
-					}
-					if (n <= blockCountMax - 12 && (level < LEVEL_HIT_12)){
+					if (n <= blockCountMax - 12 && (level < LEVEL_HIT_12))
 						level = LEVEL_HIT_12;
-					}
-					if ((colorIdx == 2) && (level < LEVEL_HIT_ORANGE)){
+					if ((colorIdx == 2) && (level < LEVEL_HIT_ORANGE))
 						level = LEVEL_HIT_ORANGE;
-					}
-					if ((colorIdx == 3) && (level < LEVEL_HIT_RED)){
+					if ((colorIdx == 3) && (level < LEVEL_HIT_RED))
 						level = LEVEL_HIT_RED;
-					}
 				}
 				blocks[i][j].isDead = true;
 				if (
@@ -330,6 +329,12 @@ void D_GAME::Idle()
 		g_gamestate = GAME_OVER;
 		g_timerstart = g_lasttime;
 	}
+
+	if (screen == SCREEN_MAX)
+	{
+		g_gamestate = GAME_CLEAR;
+		g_timerstart = g_lasttime;
+	}
 }
 
 void D_GAME::GameOver()
@@ -339,11 +344,23 @@ void D_GAME::GameOver()
 			blocks[i][j].isDead = false;
 		}
 	}
-	turn = 0;
-	level = LEVEL_DEFAULT;
 	ball.Speedfresh();
-	DrawStringToHandle(100, 400, "ゲームオーバー",
+	DrawStringToHandle(100, 400, "GAMEOVER",
 		GetColor(255, 0, 0), g_largefont);
 	if(g_lasttime - g_timerstart > 5000)
+		g_gamestate = GAME_TITLE;
+}
+
+void D_GAME::GameClear()
+{
+	for (int i = 0; i < BLOCK_ROW_MAX; i++){
+		for (int j = 0; j < BLOCK_COLUMN_MAX; j++){
+			blocks[i][j].isDead = false;
+		}
+	}
+	ball.Speedfresh();
+	DrawStringToHandle(100, 400, "GAMECLEAR",
+		GetColor(255, 0, 0), g_largefont);
+	if (g_lasttime - g_timerstart > 5000)
 		g_gamestate = GAME_TITLE;
 }

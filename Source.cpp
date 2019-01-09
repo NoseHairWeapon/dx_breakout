@@ -53,6 +53,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		case GAME_OVER:
 			G_frame.GameOver();
 			break;
+		case GAME_CLEAR:
+			G_frame.GameClear();
+			break;
 		default:
 			break;
 		}
