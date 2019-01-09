@@ -267,7 +267,6 @@ void D_GAME::Idle()
 		StopSoundMem(Se_wall);
 
 		if (getBlockCount() <= 0){
-			screen++;
 			turn--;
 			if (screen < SCREEN_MAX){
 				for (int i = 0; i < BLOCK_ROW_MAX; i++)
@@ -295,10 +294,13 @@ void D_GAME::Idle()
 				int s = 1 + 2 * colorIdx;
 				score += s;
 				PlaySoundMem(Se_block, DX_PLAYTYPE_BACK);
-
+				blocks[i][j].isDead = true;
 				{
 					int n = getBlockCount();
 					int blockCountMax = BLOCK_COLUMN_MAX * BLOCK_ROW_MAX;
+					if ((n <= 0) && (screen < SCREEN_MAX)){
+						screen++;
+					}
 					if (n <= blockCountMax - 4 && (level < LEVEL_HIT_4))
 						level = LEVEL_HIT_4;
 					if (n <= blockCountMax - 12 && (level < LEVEL_HIT_12))
@@ -308,7 +310,6 @@ void D_GAME::Idle()
 					if ((colorIdx == 3) && (level < LEVEL_HIT_RED))
 						level = LEVEL_HIT_RED;
 				}
-				blocks[i][j].isDead = true;
 				if (
 					(ball.m_lastposition.y < blocks[i][j].m_position.y) ||
 					(ball.m_lastposition.y >= blocks[i][j].m_position.y + blocks[i][j].m_size.y)
