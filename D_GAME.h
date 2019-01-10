@@ -11,7 +11,7 @@ using namespace std;
 #define FONT_WEIGHT 8
 #define FONT_HEIGHT 32
 
-#define PADDLE_DEFAULT_WIDTH 48 * 4
+#define PADDLE_DEFAULT_WIDTH 48
 #define PADDLE_DEFAULT_HEIGHT 8
 
 #define BLOCK_COLUMN_MAX 14
