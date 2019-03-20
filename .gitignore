@@ -40,3 +40,5 @@ Debug/opengl_model.tlog/unsuccessfulbuild
 *.suo
 *.sdf
 *.opensdf
+*.mp3
+*.db

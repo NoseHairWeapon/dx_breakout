@@ -200,9 +200,9 @@ void D_GAME::Display()
 	x = field.m_position.x;
 	SetFontSize(16);
 	SetFontThickness(2);
-	DrawFormatString(x, y, Cr, "level: %d\n", level);
+	//DrawFormatString(x, y, Cr, "level: %d\n", level);
 	y += 16;
-	DrawFormatString(x, y, Cr, "BlockCount: %d\n", getBlockCount());
+	//DrawFormatString(x, y, Cr, "BlockCount: %d\n", getBlockCount());
 	y += 16;
 	DrawFormatString(x, y, Cr, "screen: %d\n", screen);
 }
